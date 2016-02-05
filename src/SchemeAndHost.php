@@ -17,23 +17,13 @@ class SchemeAndHost
     protected $trustedProxies;
 
     /**
-     * Name of the IP address attribute added by rka-ip-address-middleware
-     *
-     * Defaults to 'ip_address'
-     *
-     * @var string
-     */
-    protected $ipAddressAttributeName;
-
-    /**
      * Constructor
      *
      * @param array $trustedProxies   List of IP addresses of trusted proxies
      */
-    public function __construct($trustedProxies = [], $ipAddressAttributeName = 'ip_address')
+    public function __construct($trustedProxies = [])
     {
         $this->trustedProxies = $trustedProxies;
-        $this->ipAddressAttributeName = $ipAddressAttributeName;
     }
 
     /**
