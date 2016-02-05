@@ -53,15 +53,11 @@ class SchemeAndHost
         }
         
         if (!empty($this->trustedProxies)) {
-            // get IP address from REMOTE_ADDR or from the Request attribute
+            // get IP address from REMOTE_ADDR
             $ipAddress = null;
             $serverParams = $request->getServerParams();
             if (isset($serverParams['REMOTE_ADDR']) && $this->isValidIpAddress($serverParams['REMOTE_ADDR'])) {
                 $ipAddress = $serverParams['REMOTE_ADDR'];
-            }
-            $ip = $request->getAttribute($this->ipAddressAttributeName);
-            if ($this->isValidIpAddress($ip)) {
-                $ipAddress = $ip;
             }
 
             if (!in_array($ipAddress, $this->trustedProxies)) {
