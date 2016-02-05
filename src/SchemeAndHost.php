@@ -27,8 +27,7 @@ class SchemeAndHost
     }
 
     /**
-     * Set the "$attributeName" attribute to the client's IP address as determined from
-     * the proxy header (X-Forwarded-For or from $_SERVER['REMOTE_ADDR']
+     * Override the request URI's scheme, host and port as determined from the proxy headers
      *
      * @param ServerRequestInterface $request PSR7 request
      * @param ResponseInterface $response     PSR7 response
