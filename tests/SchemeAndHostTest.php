@@ -7,27 +7,29 @@ use Zend\Diactoros\Response;
 
 class SchemeAndHostTest extends \PHPUnit_Framework_TestCase
 {
-    public function testSchemeAndHost()
+    public function testSchemeAndHostAndPort()
     {
         $request = ServerRequestFactory::fromGlobals([
             'REMOTE_ADDR' => '192.168.0.1',
             'HTTP_HOST' => 'foo.com',
             'HTTP_X_FORWARDED_PROTO' => 'https',
-            'HTTP_X_FORWARDED_HOST' => 'example.com',
+            'HTTP_X_FORWARDED_HOST' => 'example.com:1234',
         ]);
 
         $response = new Response();
 
         $middleware = new SchemeAndHost();
-        $middleware($request, $response, function ($request, $response) use (&$scheme, &$host) {
-            // simply store the scheme and host values
+        $middleware($request, $response, function ($request, $response) use (&$scheme, &$host, &$port) {
+            // simply store the values
             $scheme = $request->getUri()->getScheme();
             $host = $request->getUri()->getHost();
+            $port = $request->getUri()->getPort();
             return $response;
         });
 
         $this->assertSame('https', $scheme);
         $this->assertSame('example.com', $host);
+        $this->assertSame(1234, $port);
     }
 
     public function testTrustedProxies()
@@ -36,21 +38,23 @@ class SchemeAndHostTest extends \PHPUnit_Framework_TestCase
             'REMOTE_ADDR' => '192.168.0.1',
             'HTTP_HOST' => 'foo.com',
             'HTTP_X_FORWARDED_PROTO' => 'https',
-            'HTTP_X_FORWARDED_HOST' => 'example.com',
+            'HTTP_X_FORWARDED_HOST' => 'example.com:1234',
         ]);
 
         $response = new Response();
 
         $middleware = new SchemeAndHost(['192.168.0.1']);
-        $middleware($request, $response, function ($request, $response) use (&$scheme, &$host) {
-            // simply store the scheme and host values
+        $middleware($request, $response, function ($request, $response) use (&$scheme, &$host, &$port) {
+            // simply store the values
             $scheme = $request->getUri()->getScheme();
             $host = $request->getUri()->getHost();
+            $port = $request->getUri()->getPort();
             return $response;
         });
 
         $this->assertSame('https', $scheme);
         $this->assertSame('example.com', $host);
+        $this->assertSame(1234, $port);
     }
 
     public function testNonTrustedProxies()
@@ -58,19 +62,22 @@ class SchemeAndHostTest extends \PHPUnit_Framework_TestCase
         $request = ServerRequestFactory::fromGlobals([
             'REMOTE_ADDR' => '10.0.0.1',
             'HTTP_HOST' => 'foo.com',
-            'HTTP_X_FORWARDED_HOST' => 'example.com',
+            'HTTP_X_FORWARDED_HOST' => 'example.com:1234',
         ]);
 
         $response = new Response();
 
         $middleware = new SchemeAndHost(['192.168.0.1']);
-        $middleware($request, $response, function ($request, $response) use (&$scheme, &$host) {
-            // simply store the scheme and host values
+        $middleware($request, $response, function ($request, $response) use (&$scheme, &$host, &$port) {
+            // simply store the values
             $scheme = $request->getUri()->getScheme();
             $host = $request->getUri()->getHost();
+            $port = $request->getUri()->getPort();
             return $response;
         });
 
+        $this->assertSame('http', $scheme);
         $this->assertSame('foo.com', $host);
+        $this->assertSame(null, $port);
     }
 }
