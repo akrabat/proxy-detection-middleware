@@ -7,7 +7,7 @@ use Zend\Diactoros\Response;
 
 class SchemeAndHostTest extends \PHPUnit_Framework_TestCase
 {
-    public function testSchemeAndHostAndPort()
+    public function testSchemeAndHostAndPortWithPortInHostHeader()
     {
         $request = ServerRequestFactory::fromGlobals([
             'REMOTE_ADDR' => '192.168.0.1',
@@ -30,6 +30,58 @@ class SchemeAndHostTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('https', $scheme);
         $this->assertSame('example.com', $host);
         $this->assertSame(1234, $port);
+    }
+
+    public function testSchemeAndHostAndPortWithPortInPortHeader()
+    {
+        $request = ServerRequestFactory::fromGlobals([
+            'REMOTE_ADDR' => '192.168.0.1',
+            'HTTP_HOST' => 'foo.com',
+            'HTTP_X_FORWARDED_PROTO' => 'https',
+            'HTTP_X_FORWARDED_HOST' => 'example.com',
+            'HTTP_X_FORWARDED_PORT' => '1234',
+        ]);
+
+        $response = new Response();
+
+        $middleware = new SchemeAndHost();
+        $middleware($request, $response, function ($request, $response) use (&$scheme, &$host, &$port) {
+            // simply store the values
+            $scheme = $request->getUri()->getScheme();
+            $host = $request->getUri()->getHost();
+            $port = $request->getUri()->getPort();
+            return $response;
+        });
+
+        $this->assertSame('https', $scheme);
+        $this->assertSame('example.com', $host);
+        $this->assertSame(1234, $port);
+    }
+
+    public function testSchemeAndHostAndPortWithPortInHostAndPortHeader()
+    {
+        $request = ServerRequestFactory::fromGlobals([
+            'REMOTE_ADDR' => '192.168.0.1',
+            'HTTP_HOST' => 'foo.com',
+            'HTTP_X_FORWARDED_PROTO' => 'https',
+            'HTTP_X_FORWARDED_HOST' => 'example.com:1000',
+            'HTTP_X_FORWARDED_PORT' => '2000',
+        ]);
+
+        $response = new Response();
+
+        $middleware = new SchemeAndHost();
+        $middleware($request, $response, function ($request, $response) use (&$scheme, &$host, &$port) {
+            // simply store the values
+            $scheme = $request->getUri()->getScheme();
+            $host = $request->getUri()->getHost();
+            $port = $request->getUri()->getPort();
+            return $response;
+        });
+
+        $this->assertSame('https', $scheme);
+        $this->assertSame('example.com', $host);
+        $this->assertSame(1000, $port);
     }
 
     public function testTrustedProxies()

@@ -58,6 +58,7 @@ class SchemeAndHost
         $uri = $request->getUri();
 
         $uri = $this->processProtoHeader($request, $uri);
+        $uri = $this->processPortHeader($request, $uri);
         $uri = $this->processHostHeader($request, $uri);
 
         $request = $request->withUri($uri);
@@ -92,6 +93,17 @@ class SchemeAndHost
         return $uri;
     }
 
+    protected function processPortHeader(ServerRequestInterface $request, UriInterface $uri)
+    {
+        if ($request->hasHeader('X-Forwarded-Port')) {
+            $port = trim(current(explode(',', $request->getHeaderLine('X-Forwarded-Port'))));
+
+            if (preg_match('/^\d+\z/', $port)) {
+                return $uri->withPort((int) $port);
+            }
+        }
+        return $uri;
+    }
 
     protected function processHostHeader(ServerRequestInterface $request, UriInterface $uri)
     {
