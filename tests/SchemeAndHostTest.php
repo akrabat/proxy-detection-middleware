@@ -2,16 +2,12 @@
 namespace RKA\Middleware\Test;
 
 use RKA\Middleware\SchemeAndHost;
-use Zend\Diactoros\ServerRequest;
 use Zend\Diactoros\ServerRequestFactory;
-use Zend\Diactoros\Uri;
 use Zend\Diactoros\Response;
-use Zend\Diactoros\Stream;
-use RuntimeException;
 
 class SchemeAndHostTest extends \PHPUnit_Framework_TestCase
 {
-    public function testShemeAndHost()
+    public function testSchemeAndHost()
     {
         $request = ServerRequestFactory::fromGlobals([
             'REMOTE_ADDR' => '192.168.0.1',
@@ -22,8 +18,8 @@ class SchemeAndHostTest extends \PHPUnit_Framework_TestCase
 
         $response = new Response();
 
-        $middleware = new SchemeAndHost([]);
-        $response  = $middleware($request, $response, function ($request, $response) use (&$scheme, &$host) {
+        $middleware = new SchemeAndHost();
+        $middleware($request, $response, function ($request, $response) use (&$scheme, &$host) {
             // simply store the scheme and host values
             $scheme = $request->getUri()->getScheme();
             $host = $request->getUri()->getHost();
@@ -46,7 +42,7 @@ class SchemeAndHostTest extends \PHPUnit_Framework_TestCase
         $response = new Response();
 
         $middleware = new SchemeAndHost(['192.168.0.1']);
-        $response  = $middleware($request, $response, function ($request, $response) use (&$scheme, &$host) {
+        $middleware($request, $response, function ($request, $response) use (&$scheme, &$host) {
             // simply store the scheme and host values
             $scheme = $request->getUri()->getScheme();
             $host = $request->getUri()->getHost();
@@ -68,7 +64,7 @@ class SchemeAndHostTest extends \PHPUnit_Framework_TestCase
         $response = new Response();
 
         $middleware = new SchemeAndHost(['192.168.0.1']);
-        $response  = $middleware($request, $response, function ($request, $response) use (&$scheme, &$host) {
+        $middleware($request, $response, function ($request, $response) use (&$scheme, &$host) {
             // simply store the scheme and host values
             $scheme = $request->getUri()->getScheme();
             $host = $request->getUri()->getHost();

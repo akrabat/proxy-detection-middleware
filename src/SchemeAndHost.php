@@ -1,8 +1,8 @@
 <?php
 namespace RKA\Middleware;
 
-use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 class SchemeAndHost
 {
@@ -53,12 +53,13 @@ class SchemeAndHost
                 return $response = $next($request, $response);
             }
         }
-        
+
         $uri = $request->getUri();
 
         // scheme
         if ($request->hasHeader('X-Forwarded-Proto')) {
             $scheme = $request->getHeaderLine('X-Forwarded-Proto');
+
             if (in_array($scheme, ['http', 'https'])) {
                 $uri = $uri->withScheme($scheme);
             }
@@ -67,7 +68,7 @@ class SchemeAndHost
         // host (& maybe port too)
         if ($request->hasHeader('X-Forwarded-Host')) {
             $host = trim(current(explode(',', $request->getHeaderLine('X-Forwarded-Host'))));
-            
+
             $port = null;
             if (preg_match('/^(\[[a-fA-F0-9:.]+\])(:\d+)?\z/', $host, $matches)) {
                 $host = $matches[1];
@@ -105,27 +106,5 @@ class SchemeAndHost
             return false;
         }
         return true;
-    }
-
-    /**
-     * Getter for headers
-     *
-     * @return array
-     */
-    public function getHeaders()
-    {
-        return $this->headers;
-    }
-
-    /**
-     * Setter for headers
-     *
-     * @param array $headers List of proxy headers to test against
-     * @return self
-     */
-    public function setHeaders(array $headers)
-    {
-        $this->headers = $headers;
-        return $this;
     }
 }
