@@ -3,6 +3,7 @@ namespace RKA\Middleware;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\UriInterface;
 
 class SchemeAndHost
 {
@@ -56,16 +57,44 @@ class SchemeAndHost
 
         $uri = $request->getUri();
 
-        // scheme
+        $uri = $this->processProtoHeader($request, $uri);
+        $uri = $this->processHostHeader($request, $uri);
+
+        $request = $request->withUri($uri);
+
+        return $response = $next($request, $response);
+    }
+
+    /**
+     * Check that a given string is a valid IP address
+     *
+     * @param  string  $ip
+     * @return boolean
+     */
+    protected function isValidIpAddress($ip)
+    {
+        $flags = FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6;
+        if (filter_var($ip, FILTER_VALIDATE_IP, $flags) === false) {
+            return false;
+        }
+        return true;
+    }
+
+    protected function processProtoHeader(ServerRequestInterface $request, UriInterface $uri)
+    {
         if ($request->hasHeader('X-Forwarded-Proto')) {
             $scheme = $request->getHeaderLine('X-Forwarded-Proto');
 
             if (in_array($scheme, ['http', 'https'])) {
-                $uri = $uri->withScheme($scheme);
+                return $uri->withScheme($scheme);
             }
         }
+        return $uri;
+    }
 
-        // host (& maybe port too)
+
+    protected function processHostHeader(ServerRequestInterface $request, UriInterface $uri)
+    {
         if ($request->hasHeader('X-Forwarded-Host')) {
             $host = trim(current(explode(',', $request->getHeaderLine('X-Forwarded-Host'))));
 
@@ -87,24 +116,6 @@ class SchemeAndHost
                 $uri = $uri->withPort($port);
             }
         }
-
-        $request = $request->withUri($uri);
-        
-        return $response = $next($request, $response);
-    }
-
-    /**
-     * Check that a given string is a valid IP address
-     *
-     * @param  string  $ip
-     * @return boolean
-     */
-    protected function isValidIpAddress($ip)
-    {
-        $flags = FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6;
-        if (filter_var($ip, FILTER_VALIDATE_IP, $flags) === false) {
-            return false;
-        }
-        return true;
+        return $uri;
     }
 }
