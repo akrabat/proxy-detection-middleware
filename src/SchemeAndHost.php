@@ -1,8 +1,9 @@
 <?php
 namespace RKA\Middleware;
 
-use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\UriInterface;
 
 class SchemeAndHost
 {
@@ -53,42 +54,15 @@ class SchemeAndHost
                 return $response = $next($request, $response);
             }
         }
-        
+
         $uri = $request->getUri();
 
-        // scheme
-        if ($request->hasHeader('X-Forwarded-Proto')) {
-            $scheme = $request->getHeaderLine('X-Forwarded-Proto');
-            if (in_array($scheme, ['http', 'https'])) {
-                $uri = $uri->withScheme($scheme);
-            }
-        }
-
-        // host (& maybe port too)
-        if ($request->hasHeader('X-Forwarded-Host')) {
-            $host = trim(current(explode(',', $request->getHeaderLine('X-Forwarded-Host'))));
-            
-            $port = null;
-            if (preg_match('/^(\[[a-fA-F0-9:.]+\])(:\d+)?\z/', $host, $matches)) {
-                $host = $matches[1];
-                if ($matches[2]) {
-                    $port = (int) substr($matches[2], 1);
-                }
-            } else {
-                $pos = strpos($host, ':');
-                if ($pos !== false) {
-                    $port = (int) substr($host, $pos + 1);
-                    $host = strstr($host, ':', true);
-                }
-            }
-            $uri = $uri->withHost($host);
-            if ($port) {
-                $uri = $uri->withPort($port);
-            }
-        }
+        $uri = $this->processProtoHeader($request, $uri);
+        $uri = $this->processPortHeader($request, $uri);
+        $uri = $this->processHostHeader($request, $uri);
 
         $request = $request->withUri($uri);
-        
+
         return $response = $next($request, $response);
     }
 
@@ -107,25 +81,53 @@ class SchemeAndHost
         return true;
     }
 
-    /**
-     * Getter for headers
-     *
-     * @return array
-     */
-    public function getHeaders()
+    protected function processProtoHeader(ServerRequestInterface $request, UriInterface $uri)
     {
-        return $this->headers;
+        if ($request->hasHeader('X-Forwarded-Proto')) {
+            $scheme = $request->getHeaderLine('X-Forwarded-Proto');
+
+            if (in_array($scheme, ['http', 'https'])) {
+                return $uri->withScheme($scheme);
+            }
+        }
+        return $uri;
     }
 
-    /**
-     * Setter for headers
-     *
-     * @param array $headers List of proxy headers to test against
-     * @return self
-     */
-    public function setHeaders(array $headers)
+    protected function processPortHeader(ServerRequestInterface $request, UriInterface $uri)
     {
-        $this->headers = $headers;
-        return $this;
+        if ($request->hasHeader('X-Forwarded-Port')) {
+            $port = trim(current(explode(',', $request->getHeaderLine('X-Forwarded-Port'))));
+
+            if (preg_match('/^\d+\z/', $port)) {
+                return $uri->withPort((int) $port);
+            }
+        }
+        return $uri;
+    }
+
+    protected function processHostHeader(ServerRequestInterface $request, UriInterface $uri)
+    {
+        if ($request->hasHeader('X-Forwarded-Host')) {
+            $host = trim(current(explode(',', $request->getHeaderLine('X-Forwarded-Host'))));
+
+            $port = null;
+            if (preg_match('/^(\[[a-fA-F0-9:.]+\])(:\d+)?\z/', $host, $matches)) {
+                $host = $matches[1];
+                if ($matches[2]) {
+                    $port = (int) substr($matches[2], 1);
+                }
+            } else {
+                $pos = strpos($host, ':');
+                if ($pos !== false) {
+                    $port = (int) substr($host, $pos + 1);
+                    $host = strstr($host, ':', true);
+                }
+            }
+            $uri = $uri->withHost($host);
+            if ($port) {
+                $uri = $uri->withPort($port);
+            }
+        }
+        return $uri;
     }
 }
