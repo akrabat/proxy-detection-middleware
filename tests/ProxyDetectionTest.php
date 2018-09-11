@@ -1,11 +1,11 @@
 <?php
 namespace RKA\Middleware\Test;
 
-use RKA\Middleware\SchemeAndHost;
+use RKA\Middleware\ProxyDetection;
 use Zend\Diactoros\ServerRequestFactory;
 use Zend\Diactoros\Response;
 
-class SchemeAndHostTest extends \PHPUnit_Framework_TestCase
+class ProxyDetectionTest extends \PHPUnit_Framework_TestCase
 {
     public function testSchemeAndHostAndPortWithPortInHostHeader()
     {
@@ -18,7 +18,7 @@ class SchemeAndHostTest extends \PHPUnit_Framework_TestCase
 
         $response = new Response();
 
-        $middleware = new SchemeAndHost();
+        $middleware = new ProxyDetection();
         $middleware($request, $response, function ($request, $response) use (&$scheme, &$host, &$port) {
             // simply store the values
             $scheme = $request->getUri()->getScheme();
@@ -44,7 +44,7 @@ class SchemeAndHostTest extends \PHPUnit_Framework_TestCase
 
         $response = new Response();
 
-        $middleware = new SchemeAndHost();
+        $middleware = new ProxyDetection();
         $middleware($request, $response, function ($request, $response) use (&$scheme, &$host, &$port) {
             // simply store the values
             $scheme = $request->getUri()->getScheme();
@@ -70,7 +70,7 @@ class SchemeAndHostTest extends \PHPUnit_Framework_TestCase
 
         $response = new Response();
 
-        $middleware = new SchemeAndHost();
+        $middleware = new ProxyDetection();
         $middleware($request, $response, function ($request, $response) use (&$scheme, &$host, &$port) {
             // simply store the values
             $scheme = $request->getUri()->getScheme();
@@ -95,7 +95,7 @@ class SchemeAndHostTest extends \PHPUnit_Framework_TestCase
 
         $response = new Response();
 
-        $middleware = new SchemeAndHost(['192.168.0.1']);
+        $middleware = new ProxyDetection(['192.168.0.1']);
         $middleware($request, $response, function ($request, $response) use (&$scheme, &$host, &$port) {
             // simply store the values
             $scheme = $request->getUri()->getScheme();
@@ -119,7 +119,7 @@ class SchemeAndHostTest extends \PHPUnit_Framework_TestCase
 
         $response = new Response();
 
-        $middleware = new SchemeAndHost(['192.168.0.1']);
+        $middleware = new ProxyDetection(['192.168.0.1']);
         $middleware($request, $response, function ($request, $response) use (&$scheme, &$host, &$port) {
             // simply store the values
             $scheme = $request->getUri()->getScheme();

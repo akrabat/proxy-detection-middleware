@@ -18,7 +18,7 @@ In Slim 3:
 
 ```php
 $trustedProxies = ['10.0.0.1', '10.0.0.2'];
-$app->add(new RKA\Middleware\SchemeAndHost($trustedProxies));
+$app->add(new RKA\Middleware\ProxyDetection($trustedProxies));
 
 $app->get('/', function ($request, $response, $args) {
     $scheme = $request->getUri()->getScheme();
