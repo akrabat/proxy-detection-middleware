@@ -5,7 +5,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 
-class SchemeAndHost
+class ProxyDetection
 {
     /**
      * List of trusted proxy IP addresses
