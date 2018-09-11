@@ -13,7 +13,6 @@
          convertWarningsToExceptions="true"
          processIsolation="false"
          stopOnFailure="false"
-         bootstrap="tests/bootstrap.php"
 >
     <testsuites>
         <testsuite name="Test Suite">
