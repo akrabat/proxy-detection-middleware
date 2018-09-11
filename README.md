@@ -9,7 +9,7 @@ You can set a list of proxies that are trusted as the second constructor paramet
 
 ## Installation
 
-`composer require akrabat/rka-scheme-and-host-detection-middleware`
+`composer require akrabat/proxy-detection-middleware`
 
 
 ## Usage
