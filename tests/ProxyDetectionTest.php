@@ -1,11 +1,12 @@
 <?php
 namespace RKA\Middleware\Test;
 
+use PHPUnit\Framework\TestCase;
 use RKA\Middleware\ProxyDetection;
-use Zend\Diactoros\ServerRequestFactory;
 use Zend\Diactoros\Response;
+use Zend\Diactoros\ServerRequestFactory;
 
-class ProxyDetectionTest extends \PHPUnit_Framework_TestCase
+class ProxyDetectionTest extends TestCase
 {
     public function testSchemeAndHostAndPortWithPortInHostHeader()
     {
