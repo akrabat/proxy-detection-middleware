@@ -1,10 +1,10 @@
 {
-    "name": "akrabat/rka-scheme-and-host-detection-middleware",
+    "name": "akrabat/proxy-detection-middleware",
     "description": "PSR-7 Middleware that determines the scheme, host and port from the 'X-Forwarded-Proto', 'X-Forwarded-Host' and 'X-Forwarded-Port' headers and updates the Request's Uri object.",
     "keywords": [
         "psr7", "middleware", "ip"
     ],
-    "homepage": "http://github.com/akrabat/rka-scheme-and-host-detection-middleware",
+    "homepage": "http://github.com/akrabat/proxy-detection-middleware",
     "type": "library",
     "license": "BSD-3-Clause",
     "authors": [
