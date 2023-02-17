@@ -4,8 +4,10 @@ namespace RKA\Middleware;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
-class ProxyDetection
+class ProxyDetection implements MiddlewareInterface
 {
     /**
      * List of trusted proxy IP addresses
@@ -27,6 +29,11 @@ class ProxyDetection
         $this->trustedProxies = $trustedProxies;
     }
 
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+    {
+        return $handler->handle($this->updateRequest($request));
+    }
+
     /**
      * Override the request URI's scheme, host and port as determined from the proxy headers
      *
@@ -41,7 +48,12 @@ class ProxyDetection
         if (!$next) {
             return $response;
         }
-        
+
+        return $next($this->updateRequest($request), $response);
+    }
+
+    protected function updateRequest(ServerRequestInterface $request): ServerRequestInterface
+    {
         if (!empty($this->trustedProxies)) {
             // get IP address from REMOTE_ADDR
             $ipAddress = null;
@@ -51,7 +63,7 @@ class ProxyDetection
             }
 
             if (!in_array($ipAddress, $this->trustedProxies)) {
-                return $response = $next($request, $response);
+                return $request;
             }
         }
 
@@ -61,9 +73,7 @@ class ProxyDetection
         $uri = $this->processPortHeader($request, $uri);
         $uri = $this->processHostHeader($request, $uri);
 
-        $request = $request->withUri($uri);
-
-        return $response = $next($request, $response);
+        return $request->withUri($uri);
     }
 
     /**

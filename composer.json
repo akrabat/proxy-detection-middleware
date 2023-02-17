@@ -1,6 +1,6 @@
 {
     "name": "akrabat/proxy-detection-middleware",
-    "description": "PSR-7 Middleware that determines the scheme, host and port from the 'X-Forwarded-Proto', 'X-Forwarded-Host' and 'X-Forwarded-Port' headers and updates the Request's Uri object.",
+    "description": "PSR-7/PSR-15 Middleware that determines the scheme, host and port from the 'X-Forwarded-Proto', 'X-Forwarded-Host' and 'X-Forwarded-Port' headers and updates the Request's Uri object.",
     "keywords": [
         "psr7", "middleware", "ip"
     ],
@@ -15,7 +15,8 @@
         }
     ],
     "require": {
-        "psr/http-message": "^1.0"
+        "psr/http-message": "^1.0",
+        "psr/http-server-middleware": "^1.0"
     },
     "require-dev": {
         "php": "^8.0",
